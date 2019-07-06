@@ -1,0 +1,109 @@
+<!doctype html>
+
+<head>
+    <meta charset="utf-8">
+    <title>AeroBonkers - Aerobiz Supersonic Randomizer</title>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.4.1.min.js"><\/script>')</script>
+
+    <!-- The following three script tags are just for importing the randomtools-js package without
+    a build system. When you use a normal build system such as create-react-app, do not use these
+    script tags or the gitlibs system, and instead just import randomizer.js normally. -->
+	<script src="https://unpkg.com/getlibs"></script>
+    <script> System.config({meta:{'seedrandom':{loader:'js'}},map:{'randomtools-js':'https://unpkg.com/randomtools-js/src/index.js','seedrandom':'https://unpkg.com/seedrandom/index.js'}});</script>
+	<script type="x-module"> import { execute } from './randomizer.js'; window.execute = execute; </script>
+</head>
+
+<body>
+    <h1>AeroBonkers</h1>
+    <h2>Aerobiz Supersonic Randomizer</h2>
+    <fieldset>
+        <legend>Flags</legend>
+        <div>
+            <input type="checkbox" id="planeData" name="planeData" checked />
+            <label for="planeData">Randomize plane data</label>
+        </div>
+        <div>
+            <input type="checkbox" id="airlineNames" name="airlineNames" checked />
+            <label for="airlineNames">Randomize airline names</label>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>File</legend>
+        <div>
+            <input type="file" id="fileInput" name="fileInput" onchange="fileSelect(event)" />
+        </div>
+    </fieldset>
+    
+    <fieldset>
+        <legend>Execute and Download</legend>
+        <div>
+            <button onclick="buttonClick()">Execute</button>
+            Status: <span id="status">Awaiting file</span>
+        </div>
+    </fieldset>
+    <script>
+        function buttonClick() {
+            if(window.newRomData) {
+                // Download new rom
+                const blob = new Blob([window.newRomData], {type: "application/octet-stream"} );
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = "aerobonkers-output.sfc";
+                document.body.appendChild(link); 
+                link.click();
+                link.remove();
+            }
+            else if(window.romData) {
+                // Execute randomizer
+                $("button").attr("disabled", true);
+                $("#status").text("Running randomization...");
+                const options = {
+                    romfile: window.romData,
+                    specs: {
+                        flags: {
+                            a: $("#airlineNames").is(':checked'),
+                            p: $("#planeData").is(':checked'),
+                            crazy: false,
+                        }
+                    },
+                    hooks: {
+                        message: text => $("#status").text(text),
+                        error: text => $("#status").text(`ERROR: ${text}`),
+                    },
+                };
+                
+                try {
+                    var newROM = execute(options);
+                    window.newRomData = newROM;
+                    $("button").attr("disabled", false);
+                    $("button").text("Download");
+                    $("#status").text("Randomization successful");
+                }
+                catch(error) {
+                    $("#status").text(`ERROR: ${error}`);
+                }
+            }
+            else {
+                window.alert("Please load a ROM first.");
+            }
+        }
+
+        function fileSelect(event) {
+            const file = event.target.files[0];
+            if(!file) {
+                delete window.romData;
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = e => {
+                window.romData = new Uint8Array(e.target.result);
+                $("#status").text("Ready to execute");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+
+</html>
