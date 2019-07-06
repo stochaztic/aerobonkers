@@ -1,0 +1,16 @@
+{
+  "name": "aerobonkers",
+  "version": "1.0.0",
+  "description": "A small randomizer for Aerobiz Supersonic for SNES, showing how to use randomtools-js",
+  "main": "index.js",
+  "author": "@stochaztic",
+  "license": "GPL-3.0",
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-modules index.js"
+  },
+  "dependencies": {
+    "commander": "^2.20.0",
+    "randomtools-js": "^1.1.0"
+  }
+}
