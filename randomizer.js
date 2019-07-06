@@ -3,7 +3,7 @@ import AirlineNameObject from './AirlineNameObject.js';
 import PlaneDataObject from './PlaneDataObject.js';
 
 
-export async function execute(options) {
+export function execute(options) {
     if(!options || !options.romfile) {
         throw new Error("No ROM specified.");
     }

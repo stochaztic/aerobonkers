@@ -46,7 +46,8 @@ fs.readFile(program.args[0], (error, fileBuffer) => {
         },
     }
 
-    execute(options).then(newROM => {
+    try {
+        var newROM = execute(options);
         fs.writeFile(program.output, newROM, (error) => {
             if (error) {
                 console.error("Error when writing file.");
@@ -55,6 +56,8 @@ fs.readFile(program.args[0], (error, fileBuffer) => {
             };
             console.log(`Randomization successful. Saved to ${program.output}`);
         });
-    }).catch(console.error);
-
+    }
+    catch(error) {
+        console.error(error);
+    }
 });
